@@ -2,6 +2,7 @@ import { useState } from 'react';
 import TodoEditor from './TodoEditor';
 
 interface ITodoItemProps {
+	id: string;
 	title: string;
 	editTodo: (title: string) => void;
 	markItemDone: () => void;
@@ -9,6 +10,7 @@ interface ITodoItemProps {
 }
 
 const TodoItem = ({
+	id,
 	title,
 	editTodo,
 	markItemDone,
@@ -30,13 +32,13 @@ const TodoItem = ({
 	};
 
 	return (
-		<>
+		<div key={id}>
 			{!onEditTodo && (
 				<div className="container flex gap-2 w-full align-center my-2 ">
 					<input
 						className="flex-initial my-auto checked:bg-blue-500"
 						type="radio"
-						checked={false}
+						defaultChecked={false}
 						onClick={markItemDone}
 					/>
 					<h4 className="flex-1 my-auto">{title}</h4>
@@ -59,7 +61,7 @@ const TodoItem = ({
 					onClickCancel={onClickCancel}
 				/>
 			)}
-		</>
+		</div>
 	);
 };
 
