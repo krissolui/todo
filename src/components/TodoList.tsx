@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TodoItem from './TodoItem';
 import TodoEditor from './TodoEditor';
 
@@ -14,10 +14,45 @@ export interface ITodoItem {
 
 export type ITodoList = { [id: string]: ITodoItem };
 
+const isLocalStorageAvailable = () => {
+	const test = 'test';
+	try {
+		window.localStorage.setItem(test, test);
+		window.localStorage.removeItem(test);
+		return true;
+	} catch (e) {
+		return false;
+	}
+};
+
+const getStoredTodoList = (): ITodoList => {
+	if (!isLocalStorageAvailable()) return {};
+	const localList = window.localStorage.getItem('todolist');
+	if (!localList) return {};
+	return JSON.parse(localList);
+};
+
+const getStoredCounter = (): number => {
+	const localCounter = window.localStorage.getItem('counter');
+	if (!localCounter) return 0;
+	return parseInt(localCounter);
+};
+
 const TodoList = () => {
-	const [counter, setCounter] = useState<number>(0);
-	const [todoList, setTodoList] = useState<ITodoList>({});
+	const [counter, setCounter] = useState<number>(getStoredCounter());
+	const [todoList, setTodoList] = useState<ITodoList>(getStoredTodoList());
 	const [onAddTodo, setOnAddTodo] = useState<boolean>(false);
+
+	useEffect(() => {
+		if (!isLocalStorageAvailable) return;
+		window.localStorage.setItem('todolist', JSON.stringify(todoList));
+	}, [todoList]);
+
+	useEffect(() => {
+		if (!isLocalStorageAvailable) return;
+		window.localStorage.setItem('counter', JSON.stringify(counter));
+	}, [counter]);
+
 	const onClickAdd = () => {
 		setOnAddTodo(true);
 	};
@@ -81,6 +116,7 @@ const TodoList = () => {
 			<div className="min-w-[400px]">
 				{pendingTodo.map((id: string) => (
 					<TodoItem
+						id={id}
 						title={todoList[id].title}
 						editTodo={editTodo(id)}
 						markItemDone={markItemDone(id)}
